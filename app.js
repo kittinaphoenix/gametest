@@ -50,6 +50,7 @@ app.use((req, res, next) => {
 
 // Start the server
 const port = process.env.PORT || 4000;
+const address = server.address();
 app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
+  console.log(`Server listening at http://${address}:${port}`);
 });
