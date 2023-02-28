@@ -200,14 +200,33 @@
     }
     
     // Event listener for the send button
-    const sendDialog = () => {
+    const sendDialog = async () => {
         let dialogInput = document.getElementById('dialog-input');
         let dialog = dialogInput.value;
-    
+
+        if (!dialog) return; // exit the function if input is empty
+
         addUserMessage(dialog);
         dialogInput.value = "";
 
-        getDialog(dialog);
+        // Show the loading overlay
+        let loadingOverlay = document.getElementById('loadingOverlay');
+        loadingOverlay.style.display = 'flex';
+
+        try {
+            const data = { userid: userid };
+            const response = await axios.get('/dodialog?userId='+userid+'&dialog='+dialog+'&to='+actualTimeline.lastName, {
+            headers: {'Content-Type': 'application/json',},
+            method: 'GET'
+            });
+
+            addOtherMessage(response.data.dialogResponse);
+        } catch (error) {
+            addOtherMessage(error);
+        } finally {
+            // Hide the loading overlay
+            loadingOverlay.style.display = 'none';
+        }
     };
     const closeDialog = () => {
         let chatWindow = document.getElementById("chat-window");
@@ -401,9 +420,83 @@
         background-color: #323a3f; 
     }
     </style>
+    <!--LOADING  CSS-->
+    <style>
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 2s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+
+
+
+    @media (max-width: 600px) {
+  /* Adjust login container position */
+  .login-container {
+    top: 40%;
+  }
+
+  /* Adjust chat window styles */
+  .chat-window {
+    height: 100%;
+    width: 100%;
+    top: auto;
+    left: auto;
+    bottom: 0;
+    right: 0;
+    transform: none;
+  }
+  .chat-body {
+    flex-grow: 1;
+    overflow-y: scroll;
+  }
+  .chat-input {
+    position: sticky;
+    bottom: 0;
+    margin-left: 0 !important;
+  }
+
+  /* Adjust game card styles */
+  .gameCardClass {
+    margin-bottom: 20px !important;
+    height: 100%;
+  }
+  .gameCardImgClass {
+    height: 100%;
+    padding: 0;
+  }
+}
+    </style>
+
     <title>TimeWise</title>
 </head>
 <body>
+<!-- LOADING HTML -->
+<div id="loadingOverlay" class="loading-overlay" style="display:none;">
+    <div class="loading-spinner"></div>
+</div>
 <!-- DIALOG HTML -->
 <div id="chat-window" class="chat-window">
     <div class="chat-header">
