@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const indexRoutes = require('./routes/index');
+const ip = require('ip');
 
 const app = express();
 
@@ -55,4 +56,7 @@ const server = app.listen(port, () => {
   const protocol = address.family === 'IPv6' ? 'http' : 'http'; // or 'https' if using SSL/TLS
   const host = address.address === '::' ? 'localhost' : address.address;
   console.log(`Server listening at ${protocol}://${host}:${address.port}`);
+
+  const actualip = ip.address();
+  console.log('actualip', actualip);
 });
