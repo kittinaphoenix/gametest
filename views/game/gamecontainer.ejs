@@ -175,9 +175,6 @@
         }
     }
     
-    //const chatBodyHeight = window.innerHeight - 90 - 80; 
-    //chatBody.style.height = chatBodyHeight + 'px';
-    
     // Add a user message to the chat window
     const addUserMessage = (message) => {
         let chatBody = document.getElementById('chat-body');
@@ -247,7 +244,10 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-y: hidden !important;
     }
     .login-container {
         position: absolute;
