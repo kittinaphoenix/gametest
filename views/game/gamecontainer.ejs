@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/3.0.1/iconfont/material-icons.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+
+    <!--LOGIN SCRIPT-->
+    <script>
+    var userid;
+    var actualTimeline;
+
+    const postLogin = async () => {
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        console.log("postLogin")
+        try {
+            const response = await axios.post('/login', {
+            username: usernameInput.value,
+            password: passwordInput.value
+            });
+            if (response.data.success) {
+                userid = response.data.userid;
+                proceedWithGame();
+            } else {
+            // handle unsuccessful login
+                showError();
+            }
+        } catch (error) {
+            showError();
+        }
+    };
+
+    const showError = () => {
+        const inputs = document.querySelectorAll('.input-field input');
+        inputs.forEach(input => {
+            input.classList.add('invalid');
+            input.nextElementSibling.classList.add('active');
+            input.nextElementSibling.classList.add('invalid');
+            input.disabled = true;
+        });
+        const card = document.querySelector('.card');
+        card.classList.add('shake');
+        setTimeout(() => {
+            inputs.forEach(input => {
+            input.classList.remove('invalid');
+            input.disabled = false;
+            input.value = "";
+            input.nextElementSibling.classList.remove('active');
+            input.nextElementSibling.classList.remove('invalid');
+            });
+            card.classList.remove('shake');
+        }, 3000);
+    };
+    const proceedWithGame = () => {
+        const loginPopup = document.getElementById('loginPopup');
+        loginPopup.style.transition = 'transform 1s ease, opacity 1s ease';
+        loginPopup.style.transform = 'translateX(-100%)';
+        loginPopup.style.opacity = '0';
+
+        loginPopup.addEventListener('transitionend', function() {
+            loginPopup.remove();
+        });
+
+        setTimeout(() => {
+            getTimeline();
+        }, 1000);
+    };
+    </script>
+    <!-- TIMELINE SCRIPT -->
+    <script>
+    async function getTimeline() {
+        const containerRow = document.getElementById('containerRow');
+        containerRow.remove();
+
+        try {
+            const data = { userid: userid };
+            const response = await axios.get(`/getUserTimeline?userId=` + userid, {
+            headers: { "Content-Type": "application/json" },
+            method: "GET",
+            });
+
+            const timelines = response.data;
+
+            const mainRow = document.getElementById("mainRow");
+            mainRow.classList.add("row","rowContainer")
+
+            const fadeInTime = 250;
+
+            for (let i = 0; i < timelines.length; i++) {
+                const timeline = timelines[i];
+
+                console.log(timeline.fullName)
+
+                const cardCol = document.createElement("div");
+                cardCol.classList.add("col", "s6", "m4","m3");
+
+                const card = document.createElement("div");
+                card.classList.add("card","gameCardClass");
+
+                const cardImg = document.createElement("div");
+                cardImg.classList.add("card-image");
+                const img = document.createElement("img");
+                img.classList.add("gameCardImgClass")
+                img.src = timeline.lastName + ".png";
+                
+                cardImg.appendChild(img);
+
+                const cardContent = document.createElement("div");
+                cardContent.classList.add("card-content");
+                const cardTitle = document.createElement("span");
+                cardTitle.classList.add("card-title");
+                cardTitle.innerText = timeline.fullName;
+                const cardLitType = document.createElement("p");
+                cardLitType.innerText = timeline.literatureType;
+                cardContent.appendChild(cardTitle);
+                cardContent.appendChild(cardLitType);
+                closeDialog
+                card.appendChild(cardImg);
+                card.appendChild(cardContent);
+
+                // Apply fade-in and left-to-right transition
+                card.style.transition = 'transform 1s ease, opacity 1s ease';
+                card.style.transform = 'translateX(-100%)';
+                card.style.opacity = '0';
+
+                setTimeout(() => {
+                    card.style.opacity = 1;
+                    card.style.transform = "none";
+                }, i * fadeInTime);
+
+                card.addEventListener("click", () => {
+                    actualTimeline = timeline;
+                    setupChat();
+                });
+
+                cardCol.appendChild(card);
+                mainRow.appendChild(cardCol);
+            }
+        } catch (error) {
+            alert(error);
+        }
+    }
+    </script>
+    <!--DIALOG SCRIPT-->
+    <script>
+    function setupChat() {
+        var profileName = document.getElementById('profileName');
+        var profileImg = document.getElementById('profileImg');
+
+        profileName.innerText = actualTimeline.fullName;
+        profileImg.src = actualTimeline.lastName + ".png";
+
+        let chatWindow = document.getElementById("chat-window");
+        chatWindow.style.visibility = "visible";
+    }
+    
+    async function getDialog(dialogTXT) {
+        try {
+            const data = { userid: userid };
+            const response = await axios.get('/dodialog?userId='+userid+'&dialog='+dialogTXT+'&to='+actualTimeline.lastName, {
+            headers: {'Content-Type': 'application/json',},
+            method: 'GET'
+            });
+                
+            addOtherMessage(response.data.dialogResponse);
+            } catch (error) {
+            addOtherMessage(error);
+        }
+    }
+    
+    //const chatBodyHeight = window.innerHeight - 90 - 80; 
+    //chatBody.style.height = chatBodyHeight + 'px';
+    
+    // Add a user message to the chat window
+    const addUserMessage = (message) => {
+        let chatBody = document.getElementById('chat-body');
+
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('user-message');
+        messageDiv.innerText = message;
+        chatBody.appendChild(messageDiv);
+    }
+    
+    // Add another message to the chat window
+    const addOtherMessage = (message) => {
+        let chatBody = document.getElementById('chat-body');
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('other-message');
+        messageDiv.innerText = message;
+        chatBody.appendChild(messageDiv);
+
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    // Event listener for the send button
+    const sendDialog = () => {
+        let dialogInput = document.getElementById('dialog-input');
+        let dialog = dialogInput.value;
+    
+        addUserMessage(dialog);
+        dialogInput.value = "";
+
+        getDialog(dialog);
+    };
+    const closeDialog = () => {
+        let chatWindow = document.getElementById("chat-window");
+        chatWindow.style.visibility = "hidden";
+        
+        let chatBody = document.getElementById('chat-body');
+        chatBody.innerHTML = "";
+    }
+    </script>
+
+    <!-- LOGIN/TIMELINE CSS -->
+    <style>
+    body {
+        background-image: url("splash.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .login-container {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .cardClass {
+        background-color: rgba(255, 255, 255, .7);
+    }
+    .textColor {
+        color: black !important;
+    }
+    .shake {
+    animation-name: shake;
+    animation-duration: 500ms;
+    }
+
+    @keyframes shake {
+        0% { transform: translateX(0); }
+        10% { transform: translateX(-10px); }
+        20% { transform: translateX(10px); }
+        30% { transform: translateX(-10px); }
+        40% { transform: translateX(10px); }
+        50% { transform: translateX(-10px); }
+        60% { transform: translateX(10px); }
+        70% { transform: translateX(-10px); }
+        80% { transform: translateX(10px); }
+        90% { transform: translateX(-10px); }
+        100% { transform: translateX(0); }
+    }
+    .gameCardClass {
+        background-color: rgba(116, 148, 177, 0.7) !important;
+        color: white !important;
+        cursor: pointer;
+    }
+    .gameCardImgClass {
+        padding: 10%;
+        
+    }
+    .rowContainer {
+        padding:20px;
+        height: 100vh;
+        overflow-y: scroll;
+        width: 100%;
+    }
+	</style>
+    <!-- DIALOG CSS -->
+    <style>
+    .chat-window {
+        position: absolute;
+        z-index: 999;
+        top: 0;
+        left: 0;
+        height: 100vh !important;
+        width: 100vw !important;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        background-color: #202c33;
+        overflow-y: hidden;
+        overflow-x: hidden;
+        visibility: hidden;
+    }
+  
+    .chat-header {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #2f3b43;
+        background-color: #202c33;
+        color: #e9edef;
+    }
+
+    .profile-pic-cropper {
+        width: 50px;
+        height: 50px;
+        overflow: hidden;
+        border-radius: 50%;
+    }
+  
+    .profile-pic {
+        position: relative;
+        top:-8px;
+        left: -6px;
+        width: 60px;/* 284 */
+        height: auto;/* 392 */
+    }
+  
+    .chat-body {
+        height: 100%;
+        overflow-y: scroll;
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        background-color: #0b141a;
+    }
+  
+    .user-message {
+        align-self: flex-end;
+        background-color: #005c4b;
+        color: white;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 70%;
+    }
+  
+    .other-message {
+        align-self: flex-start;
+        background-color: #202c33;
+        color: white;
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 70%;
+    }
+  
+    .chat-input {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        border-top: 1px solid #2f3b43;
+        background-color: #202c33;
+        margin-left: 10px !important;
+    }
+  
+    .chat-input input {
+        flex: 1;
+        border: none;
+        outline: none;
+        font-size: 16px;
+        margin-right: 10px;
+        background-color: #425b69 !important;
+        border-radius: 8px !important;
+        padding-left: 10px !important;
+        color: white;
+    }
+  
+    .chat-input button {
+        border: none;
+        outline: none;
+        background-color: #8696a0;
+        color: #202c33;
+        font-weight: 700;
+        padding: 8px 16px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-left: 10px;
+    }
+    .closeBTN {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: #e9edef;
+        cursor: pointer;
+    }
+
+    #chat-body::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #chat-body::-webkit-scrollbar-track {
+        background-color: #323a3f; 
+        border-radius: 0px;
+    }
+
+    #chat-body::-webkit-scrollbar-thumb {
+        border-radius: 0px;
+        background-color: #323a3f; 
+    }
+    </style>
+    <title>TimeWise</title>
+</head>
+<body>
+<!-- DIALOG HTML -->
+<div id="chat-window" class="chat-window">
+    <div class="chat-header">
+        <div class="profile-pic-cropper">
+            <img id="profileImg" class="profile-pic">
+        </div>
+        <h3 id="profileName"></h3>
+    </div>
+    <div #chat-body id="chat-body" class="chat-body"></div>
+    <div class="chat-input">
+        <input type="text" id="dialog-input" placeholder="Type a message...">
+        <button id="send-button" onclick="sendDialog()">Send</button>
+    </div>
+    <a class="closeBTN" onclick="closeDialog()"><i class="material-icons" class="closeBTNTXT">clear</i></a>
+</div>
+<!-- LOGIN/TIMELINE HTML -->
+<div id="mainRow" class="container">
+    <div id="containerRow" class="row">
+        <div id="loginPopup" class="col s12 m6 offset-m3">
+            <div class="card cardClass">
+                <div class="card-content">
+                    <span class="card-title">Login</span>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">account_circle</i>
+                            <input id="username" type="text" class="textColor">
+                            <label for="username" class="textColor">Username</label>
+                        </div>
+                        <div class="input-field col s12">
+                            <i class="material-icons prefix">lock</i>
+                            <input id="password" type="password" class="textColor">
+                            <label for="password" class="textColor">Password</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-action">
+                    <a id="loginBtn" class="waves-effect waves-light btn" onclick="postLogin()">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
