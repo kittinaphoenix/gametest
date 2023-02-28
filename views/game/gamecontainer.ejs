@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta charset="utf-8">
     <!-- Compiled and minified CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
@@ -260,6 +261,9 @@
     .textColor {
         color: black !important;
     }
+    .textSize {
+        
+    }
     .shake {
     animation-name: shake;
     animation-duration: 500ms;
@@ -448,46 +452,9 @@
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
-
-
-
-
-    @media (max-width: 600px) {
-  /* Adjust login container position */
-  .login-container {
-    top: 40%;
-  }
-
-  /* Adjust chat window styles */
-  .chat-window {
-    height: 100%;
-    width: 100%;
-    top: auto;
-    left: auto;
-    bottom: 0;
-    right: 0;
-    transform: none;
-  }
-  .chat-body {
-    flex-grow: 1;
-    overflow-y: scroll;
-  }
-  .chat-input {
-    position: sticky;
-    bottom: 0;
-    margin-left: 0 !important;
-  }
-
-  /* Adjust game card styles */
-  .gameCardClass {
-    margin-bottom: 20px !important;
-    height: 100%;
-  }
-  .gameCardImgClass {
-    height: 100%;
-    padding: 0;
-  }
-}
+    .profileClass {
+        padding-left: 1em;
+    }
     </style>
 
     <title>TimeWise</title>
@@ -503,7 +470,7 @@
         <div class="profile-pic-cropper">
             <img id="profileImg" class="profile-pic">
         </div>
-        <h3 id="profileName"></h3>
+        <span class="profileClass" id="profileName"></span>
     </div>
     <div #chat-body id="chat-body" class="chat-body"></div>
     <div class="chat-input">
@@ -515,25 +482,25 @@
 <!-- LOGIN/TIMELINE HTML -->
 <div id="mainRow" class="container">
     <div id="containerRow" class="row">
-        <div id="loginPopup" class="col s12 m6 offset-m3">
+        <div id="loginPopup" class="col s12">
             <div class="card cardClass">
                 <div class="card-content">
-                    <span class="card-title">Login</span>
+                    <span class="card-title textSize">Login</span>
                     <div class="row">
                         <div class="input-field col s12">
-                            <i class="material-icons prefix">account_circle</i>
-                            <input id="username" type="text" class="textColor">
-                            <label for="username" class="textColor">Username</label>
+                            <i class="material-icons prefix textSize">account_circle</i>
+                            <input id="username" type="text" class="textColor textSize">
+                            <label for="username" class="textColor textSize">Username</label>
                         </div>
                         <div class="input-field col s12">
-                            <i class="material-icons prefix">lock</i>
-                            <input id="password" type="password" class="textColor">
-                            <label for="password" class="textColor">Password</label>
+                            <i class="material-icons prefix textSize">lock</i>
+                            <input id="password" type="password" class="textColor textSize">
+                            <label for="password" class="textColor textSize">Password</label>
                         </div>
                     </div>
                 </div>
                 <div class="card-action">
-                    <a id="loginBtn" class="waves-effect waves-light btn" onclick="postLogin()">Login</a>
+                    <a id="loginBtn" class="waves-effect waves-light btn textSize" onclick="postLogin()">Login</a>
                 </div>
             </div>
         </div>
