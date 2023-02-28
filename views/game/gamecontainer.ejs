@@ -11,230 +11,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
 
-    <!--LOGIN SCRIPT-->
-    <script>
-    var userid;
-    var actualTimeline;
-
-    const postLogin = async () => {
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        console.log("postLogin")
-        try {
-            const response = await axios.post('/login', {
-            username: usernameInput.value,
-            password: passwordInput.value
-            });
-            if (response.data.success) {
-                userid = response.data.userid;
-                proceedWithGame();
-            } else {
-            // handle unsuccessful login
-                showError();
-            }
-        } catch (error) {
-            showError();
-        }
-    };
-
-    const showError = () => {
-        const inputs = document.querySelectorAll('.input-field input');
-        inputs.forEach(input => {
-            input.classList.add('invalid');
-            input.nextElementSibling.classList.add('active');
-            input.nextElementSibling.classList.add('invalid');
-            input.disabled = true;
-        });
-        const card = document.querySelector('.card');
-        card.classList.add('shake');
-        setTimeout(() => {
-            inputs.forEach(input => {
-            input.classList.remove('invalid');
-            input.disabled = false;
-            input.value = "";
-            input.nextElementSibling.classList.remove('active');
-            input.nextElementSibling.classList.remove('invalid');
-            });
-            card.classList.remove('shake');
-        }, 3000);
-    };
-    const proceedWithGame = () => {
-        const loginPopup = document.getElementById('loginPopup');
-        loginPopup.style.transition = 'transform 1s ease, opacity 1s ease';
-        loginPopup.style.transform = 'translateX(-100%)';
-        loginPopup.style.opacity = '0';
-
-        loginPopup.addEventListener('transitionend', function() {
-            loginPopup.remove();
-        });
-
-        setTimeout(() => {
-            getTimeline();
-        }, 1000);
-    };
-    </script>
-    <!-- TIMELINE SCRIPT -->
-    <script>
-    async function getTimeline() {
-        const containerRow = document.getElementById('containerRow');
-        containerRow.remove();
-
-        try {
-            const data = { userid: userid };
-            const response = await axios.get(`/getUserTimeline?userId=` + userid, {
-            headers: { "Content-Type": "application/json" },
-            method: "GET",
-            });
-
-            const timelines = response.data;
-
-            const mainRow = document.getElementById("mainRow");
-            mainRow.classList.add("row","rowContainer")
-
-            const fadeInTime = 250;
-
-            for (let i = 0; i < timelines.length; i++) {
-                const timeline = timelines[i];
-
-                console.log(timeline.fullName)
-
-                const cardCol = document.createElement("div");
-                cardCol.classList.add("col", "s6", "m4","m3");
-
-                const card = document.createElement("div");
-                card.classList.add("card","gameCardClass");
-
-                const cardImg = document.createElement("div");
-                cardImg.classList.add("card-image");
-                const img = document.createElement("img");
-                img.classList.add("gameCardImgClass")
-                img.src = timeline.lastName + ".png";
-                
-                cardImg.appendChild(img);
-
-                const cardContent = document.createElement("div");
-                cardContent.classList.add("card-content");
-                const cardTitle = document.createElement("span");
-                cardTitle.classList.add("card-title");
-                cardTitle.innerText = timeline.fullName;
-                const cardLitType = document.createElement("p");
-                cardLitType.innerText = timeline.literatureType;
-                cardContent.appendChild(cardTitle);
-                cardContent.appendChild(cardLitType);
-                closeDialog
-                card.appendChild(cardImg);
-                card.appendChild(cardContent);
-
-                // Apply fade-in and left-to-right transition
-                card.style.transition = 'transform 1s ease, opacity 1s ease';
-                card.style.transform = 'translateX(-100%)';
-                card.style.opacity = '0';
-
-                setTimeout(() => {
-                    card.style.opacity = 1;
-                    card.style.transform = "none";
-                }, i * fadeInTime);
-
-                card.addEventListener("click", () => {
-                    actualTimeline = timeline;
-                    setupChat();
-                });
-
-                cardCol.appendChild(card);
-                mainRow.appendChild(cardCol);
-            }
-        } catch (error) {
-            alert(error);
-        }
-    }
-    </script>
-    <!--DIALOG SCRIPT-->
-    <script>
-    function setupChat() {
-        var profileName = document.getElementById('profileName');
-        var profileImg = document.getElementById('profileImg');
-
-        profileName.innerText = actualTimeline.fullName;
-        profileImg.src = actualTimeline.lastName + ".png";
-
-        let chatWindow = document.getElementById("chat-window");
-        chatWindow.style.visibility = "visible";
-    }
-    
-    async function getDialog(dialogTXT) {
-        try {
-            const data = { userid: userid };
-            const response = await axios.get('/dodialog?userId='+userid+'&dialog='+dialogTXT+'&to='+actualTimeline.lastName, {
-            headers: {'Content-Type': 'application/json',},
-            method: 'GET'
-            });
-                
-            addOtherMessage(response.data.dialogResponse);
-            } catch (error) {
-            addOtherMessage(error);
-        }
-    }
-    
-    // Add a user message to the chat window
-    const addUserMessage = (message) => {
-        let chatBody = document.getElementById('chat-body');
-
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('user-message');
-        messageDiv.innerText = message;
-        chatBody.appendChild(messageDiv);
-    }
-    
-    // Add another message to the chat window
-    const addOtherMessage = (message) => {
-        let chatBody = document.getElementById('chat-body');
-        
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('other-message');
-        messageDiv.innerText = message;
-        chatBody.appendChild(messageDiv);
-
-        chatBody.scrollTop = chatBody.scrollHeight;
-    }
-    
-    // Event listener for the send button
-    const sendDialog = async () => {
-        let dialogInput = document.getElementById('dialog-input');
-        let dialog = dialogInput.value;
-
-        if (!dialog) return; // exit the function if input is empty
-
-        addUserMessage(dialog);
-        dialogInput.value = "";
-
-        // Show the loading overlay
-        let loadingOverlay = document.getElementById('loadingOverlay');
-        loadingOverlay.style.display = 'flex';
-
-        try {
-            const data = { userid: userid };
-            const response = await axios.get('/dodialog?userId='+userid+'&dialog='+dialog+'&to='+actualTimeline.lastName, {
-            headers: {'Content-Type': 'application/json',},
-            method: 'GET'
-            });
-
-            addOtherMessage(response.data.dialogResponse);
-        } catch (error) {
-            addOtherMessage(error);
-        } finally {
-            // Hide the loading overlay
-            loadingOverlay.style.display = 'none';
-        }
-    };
-    const closeDialog = () => {
-        let chatWindow = document.getElementById("chat-window");
-        chatWindow.style.visibility = "hidden";
-        
-        let chatBody = document.getElementById('chat-body');
-        chatBody.innerHTML = "";
-    }
-    </script>
-
     <!-- LOGIN/TIMELINE CSS -->
     <style>
     body {
@@ -506,5 +282,232 @@
         </div>
     </div>
 </div>
+<!--LOGIN SCRIPT-->
+<script>
+    var userid;
+    var actualTimeline;
+
+    const postLogin = async () => {
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        console.log("postLogin")
+        try {
+            const response = await axios.post('/login', {
+            username: usernameInput.value,
+            password: passwordInput.value
+            });
+            if (response.data.success) {
+                userid = response.data.userid;
+                proceedWithGame();
+            } else {
+            // handle unsuccessful login
+                showError();
+            }
+        } catch (error) {
+            showError();
+        }
+    };
+
+    const showError = () => {
+        const inputs = document.querySelectorAll('.input-field input');
+        inputs.forEach(input => {
+            input.classList.add('invalid');
+            input.nextElementSibling.classList.add('active');
+            input.nextElementSibling.classList.add('invalid');
+            input.disabled = true;
+        });
+        const card = document.querySelector('.card');
+        card.classList.add('shake');
+        setTimeout(() => {
+            inputs.forEach(input => {
+            input.classList.remove('invalid');
+            input.disabled = false;
+            input.value = "";
+            input.nextElementSibling.classList.remove('active');
+            input.nextElementSibling.classList.remove('invalid');
+            });
+            card.classList.remove('shake');
+        }, 3000);
+    };
+    const proceedWithGame = () => {
+        const loginPopup = document.getElementById('loginPopup');
+        loginPopup.style.transition = 'transform 1s ease, opacity 1s ease';
+        loginPopup.style.transform = 'translateX(-100%)';
+        loginPopup.style.opacity = '0';
+
+        loginPopup.addEventListener('transitionend', function() {
+            loginPopup.remove();
+        });
+
+        setTimeout(() => {
+            getTimeline();
+        }, 1000);
+    };
+    </script>
+    <!-- TIMELINE SCRIPT -->
+    <script>
+    async function getTimeline() {
+        const containerRow = document.getElementById('containerRow');
+        containerRow.remove();
+
+        try {
+            const data = { userid: userid };
+            const response = await axios.get(`/getUserTimeline?userId=` + userid, {
+            headers: { "Content-Type": "application/json" },
+            method: "GET",
+            });
+
+            const timelines = response.data;
+
+            const mainRow = document.getElementById("mainRow");
+            mainRow.classList.add("row","rowContainer")
+
+            const fadeInTime = 250;
+
+            for (let i = 0; i < timelines.length; i++) {
+                const timeline = timelines[i];
+
+                console.log(timeline.fullName)
+
+                const cardCol = document.createElement("div");
+                cardCol.classList.add("col", "s6", "m4","m3");
+
+                const card = document.createElement("div");
+                card.classList.add("card","gameCardClass");
+
+                const cardImg = document.createElement("div");
+                cardImg.classList.add("card-image");
+                const img = document.createElement("img");
+                img.classList.add("gameCardImgClass")
+                img.src = timeline.lastName + ".png";
+                
+                cardImg.appendChild(img);
+
+                const cardContent = document.createElement("div");
+                cardContent.classList.add("card-content");
+                const cardTitle = document.createElement("span");
+                cardTitle.classList.add("card-title");
+                cardTitle.innerText = timeline.fullName;
+                const cardLitType = document.createElement("p");
+                cardLitType.innerText = timeline.literatureType;
+                cardContent.appendChild(cardTitle);
+                cardContent.appendChild(cardLitType);
+                closeDialog
+                card.appendChild(cardImg);
+                card.appendChild(cardContent);
+
+                // Apply fade-in and left-to-right transition
+                card.style.transition = 'transform 1s ease, opacity 1s ease';
+                card.style.transform = 'translateX(-100%)';
+                card.style.opacity = '0';
+
+                setTimeout(() => {
+                    card.style.opacity = 1;
+                    card.style.transform = "none";
+                }, i * fadeInTime);
+
+                card.addEventListener("click", () => {
+                    actualTimeline = timeline;
+                    setupChat();
+                });
+
+                cardCol.appendChild(card);
+                mainRow.appendChild(cardCol);
+            }
+        } catch (error) {
+            alert(error);
+        }
+    }
+    </script>
+    <!--DIALOG SCRIPT-->
+    <script>
+    function setupChat() {
+        var profileName = document.getElementById('profileName');
+        var profileImg = document.getElementById('profileImg');
+
+        profileName.innerText = actualTimeline.fullName;
+        profileImg.src = actualTimeline.lastName + ".png";
+
+        let chatWindow = document.getElementById("chat-window");
+        chatWindow.style.visibility = "visible";
+    }
+    
+    async function getDialog(dialogTXT) {
+        try {
+            const data = { userid: userid };
+            const response = await axios.get('/dodialog?userId='+userid+'&dialog='+dialogTXT+'&to='+actualTimeline.lastName, {
+            headers: {'Content-Type': 'application/json',},
+            method: 'GET'
+            });
+                
+            addOtherMessage(response.data.dialogResponse);
+            } catch (error) {
+            addOtherMessage(error);
+        }
+    }
+    
+    // Add a user message to the chat window
+    const addUserMessage = (message) => {
+        let chatBody = document.getElementById('chat-body');
+
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('user-message');
+        messageDiv.innerText = message;
+        chatBody.appendChild(messageDiv);
+    }
+    
+    // Add another message to the chat window
+    const addOtherMessage = (message) => {
+        let chatBody = document.getElementById('chat-body');
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('other-message');
+        messageDiv.innerText = message;
+        chatBody.appendChild(messageDiv);
+
+        chatBody.scrollTop = chatBody.scrollHeight;
+    }
+    
+    // Event listener for the send button
+    const sendDialog = async () => {
+        let dialogInput = document.getElementById('dialog-input');
+        let dialog = dialogInput.value;
+
+        if (!dialog) return; // exit the function if input is empty
+
+        addUserMessage(dialog);
+        dialogInput.value = "";
+
+        // Show the loading overlay
+        let loadingOverlay = document.getElementById('loadingOverlay');
+        loadingOverlay.style.display = 'flex';
+
+        try {
+            const data = { userid: userid };
+            const response = await axios.get('/dodialog?userId='+userid+'&dialog='+dialog+'&to='+actualTimeline.lastName, {
+            headers: {'Content-Type': 'application/json',},
+            method: 'GET'
+            });
+
+            addOtherMessage(response.data.dialogResponse);
+        } catch (error) {
+            addOtherMessage(error);
+        } finally {
+            // Hide the loading overlay
+            loadingOverlay.style.display = 'none';
+        }
+    };
+    const closeDialog = () => {
+        let chatWindow = document.getElementById("chat-window");
+        chatWindow.style.visibility = "hidden";
+        
+        let chatBody = document.getElementById('chat-body');
+        chatBody.innerHTML = "";
+    }
+    var availableHeight = window.innerHeight;
+    document.querySelector('body').style.height = availableHeight + 'px !important;';
+    document.querySelector('rowContainer').style.height = availableHeight + 'px !important;';
+    document.querySelector('chat-window').style.height = availableHeight + 'px !important;';
+    </script>
 </body>
 </html>
