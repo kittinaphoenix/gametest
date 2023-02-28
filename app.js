@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const indexRoutes = require('./routes/index');
 const ip = require('ip');
 
+const reconnectTimeout = 1000;
+
 const app = express();
 
 const mongoDBSTR = process.env.mongoDBSTR || '';
@@ -18,7 +20,7 @@ const connectToMongoDB = async () => {
     console.log('MongoDB connected!');
   } catch (error) {
     console.error('MongoDB connection error:', error);
-    setTimeout(connectToMongoDB, 5000); // Wait for 5 seconds before retrying the connection
+    setTimeout(connectToMongoDB, reconnectTimeout); // Wait for 5 seconds before retrying the connection
   }
 };
 
@@ -28,7 +30,7 @@ connectToMongoDB();
 // Reconnect to MongoDB if disconnected
 mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected! Trying to reconnect...');
-  setTimeout(connectToMongoDB, 5000); // Wait for 5 seconds before reconnecting
+  setTimeout(connectToMongoDB, reconnectTimeout); // Wait for 5 seconds before reconnecting
 });
 
 // Set up middleware, routes, etc.
