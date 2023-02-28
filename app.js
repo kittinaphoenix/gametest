@@ -55,8 +55,9 @@ const server = app.listen(port, () => {
   const address = server.address();
   const protocol = address.family === 'IPv6' ? 'http' : 'http'; // or 'https' if using SSL/TLS
   const host = address.address === '::' ? 'localhost' : address.address;
-  console.log(`Server listening at ${protocol}://${host}:${address.port}`);
-
+  
   const actualip = ip.address();
+  console.log('mongoDBSTR',mongoDBSTR);
   console.log('actualip', actualip);
+  console.log('Server listening at ${protocol}://${host}:${address.port}');
 });
