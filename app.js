@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const mongoose = require('mongoose');
 const indexRoutes = require('./routes/index');
 const ip = require('ip');
@@ -19,8 +18,11 @@ const connectToMongoDB = async () => {
     await mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true });
     console.log('MongoDB connected!');
   } catch (error) {
-    console.error('MongoDB connection error:', error);
-    setTimeout(connectToMongoDB, reconnectTimeout); // Wait for 5 seconds before retrying the connection
+    console.error('MongoDB connection error: (ignoring message)');
+    const actualip = ip.address();
+    console.log('mongoDBSTR',mongoDBSTR);
+    console.log('Server listening ip:',actualip);
+    setTimeout(connectToMongoDB, reconnectTimeout);
   }
 };
 
@@ -30,11 +32,10 @@ connectToMongoDB();
 // Reconnect to MongoDB if disconnected
 mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected! Trying to reconnect...');
-  setTimeout(connectToMongoDB, reconnectTimeout); // Wait for 5 seconds before reconnecting
+  setTimeout(connectToMongoDB, reconnectTimeout);
 });
 
 // Set up middleware, routes, etc.
-app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
