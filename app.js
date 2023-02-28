@@ -51,6 +51,8 @@ app.use((req, res, next) => {
 // Start the server
 const port = process.env.PORT || 4000;
 const server = app.listen(port, () => {
-  const host = server.address().address;
-  console.log('Server listening at http://%s:%s', host, port);
+  const address = server.address();
+  const protocol = address.family === 'IPv6' ? 'http' : 'http'; // or 'https' if using SSL/TLS
+  const host = address.address === '::' ? 'localhost' : address.address;
+  console.log(`Server listening at ${protocol}://${host}:${address.port}`);
 });
