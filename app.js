@@ -12,12 +12,18 @@ const mongoDBSTR = process.env.mongoDBSTR || '';
 mongoose.set('strictQuery', false);
 
 // Connect to MongoDB
-mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log('MongoDB connected!'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 const db = mongoose.connection;
 
 db.on('error', (error) => {
   console.error('MongoDB connection error:', error);
+  setTimeout(() => {
+    console.log('Retrying MongoDB connection...');
+    mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true });
+  }, 5000); // Wait for 5 seconds before retrying the connection
 });
 
 db.once('open', () => {
@@ -26,7 +32,9 @@ db.once('open', () => {
 
 db.on('disconnected', () => {
   console.log('MongoDB disconnected! Trying to reconnect...');
-  mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true });
+  setTimeout(() => {
+    mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true });
+  }, 5000); // Wait for 5 seconds before retrying the connection
 });
 
 // Set up middleware, routes, etc.
@@ -55,9 +63,8 @@ const server = app.listen(port, () => {
   const address = server.address();
   const protocol = address.family === 'IPv6' ? 'http' : 'http'; // or 'https' if using SSL/TLS
   const host = address.address === '::' ? 'localhost' : address.address;
-  
   const actualip = ip.address();
+  
   console.log('mongoDBSTR',mongoDBSTR);
-  console.log('actualip', actualip);
-  console.log('Server listening at ${protocol}://${host}:${address.port}');
+  console.log('Server listening actualip:',actualip,'protocol:', protocol,'host:', host,'port:',port);
 });
