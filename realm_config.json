@@ -1,0 +1,9 @@
+{
+    "app_id": "game-test-guaai",
+    "config_version": 20210101,
+    "name": "game-test",
+    "location": "US-OR",
+    "provider_region": "azure-westus",
+    "deployment_model": "LOCAL",
+    "environment": "testing"
+}
