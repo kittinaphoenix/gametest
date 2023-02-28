@@ -11,32 +11,24 @@ const mongoDBSTR = process.env.mongoDBSTR || '';
 // Set the strictQuery option to false
 mongoose.set('strictQuery', false);
 
+// Define a function to connect to MongoDB
+const connectToMongoDB = async () => {
+  try {
+    await mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true });
+    console.log('MongoDB connected!');
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    setTimeout(connectToMongoDB, 5000); // Wait for 5 seconds before retrying the connection
+  }
+};
+
 // Connect to MongoDB
-mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected!'))
-  .catch(err => console.error('MongoDB connection error:', err));
+connectToMongoDB();
 
-const db = mongoose.connection;
-
-db.on('error', (error) => {
-  console.error('MongoDB connection error:', error);
-  setTimeout(() => {
-    console.log('Retrying MongoDB connection...');
-    mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true })
-      .then(() => console.log('MongoDB connected!'))
-      .catch(err => console.error('MongoDB connection error:', err));
-  }, 5000); // Wait for 5 seconds before retrying the connection
-});
-
-db.once('open', () => {
-  console.log('MongoDB connected!');
-});
-
-db.on('disconnected', () => {
+// Reconnect to MongoDB if disconnected
+mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected! Trying to reconnect...');
-  setTimeout(() => {
-    mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true });
-  }, 5000); // Wait for 5 seconds before retrying the connection
+  setTimeout(connectToMongoDB, 5000); // Wait for 5 seconds before reconnecting
 });
 
 // Set up middleware, routes, etc.
@@ -68,5 +60,5 @@ const server = app.listen(port, () => {
   const actualip = ip.address();
   
   console.log('mongoDBSTR',mongoDBSTR);
-  console.log('Server listening actualip:',actualip,'protocol:', protocol,'host:', host,'port:',port);
+  console.log('Server listening ip:',actualip,'protocol:', protocol,'host:', host,'port:',port);
 });
