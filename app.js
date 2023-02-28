@@ -50,7 +50,7 @@ app.use((req, res, next) => {
 
 // Start the server
 const port = process.env.PORT || 4000;
-const address = server.address();
-app.listen(port, () => {
-  console.log(`Server listening at http://${address}:${port}`);
+const server = app.listen(port, () => {
+  const host = server.address().address;
+  console.log('Server listening at http://%s:%s', host, port);
 });
