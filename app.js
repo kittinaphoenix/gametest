@@ -7,6 +7,8 @@ const reconnectTimeout = 1000;
 
 const app = express();
 
+
+
 const mongoDBSTR = process.env.mongoDBSTR || '';
 
 // Set the strictQuery option to false
