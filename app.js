@@ -22,7 +22,9 @@ db.on('error', (error) => {
   console.error('MongoDB connection error:', error);
   setTimeout(() => {
     console.log('Retrying MongoDB connection...');
-    mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true });
+    mongoose.connect(mongoDBSTR, { useNewUrlParser: true, useUnifiedTopology: true })
+      .then(() => console.log('MongoDB connected!'))
+      .catch(err => console.error('MongoDB connection error:', err));
   }, 5000); // Wait for 5 seconds before retrying the connection
 });
 
