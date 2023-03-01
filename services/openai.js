@@ -10,13 +10,14 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function getDialog(user, dialogInput, dialogTo) {
-  const prompt = "simula y responde mi siguiente interaccion como un dialogo uno a uno con el autor "+dialogTo+".Basado en toda su literatura y datos que tengas, responde en primera persona como si fuese el autor quien responde, si aplica en la pregunta, el autor tiene que citar una obra asociada al tema, la pregunta: "+dialogInput;
+  const prompt = "Comienza una conversación con " + dialogTo + " basada en su literatura y datos que tengas. Respóndele en primera persona como si fueses " + dialogTo + ", puedes citar una obra asociada al tema si aplica. Por favor, asegúrate de que tus respuestas sean coherentes y contextualizadas. Aquí está el mensaje de inicio del chat: " + dialogInput;
     try {
       const response = await openai.createCompletion({
         model: "text-davinci-003",
         prompt: prompt,
-        max_tokens: 150,
-        temperature: 0,
+        max_tokens: 2048,
+        n:1,
+        temperature: 0.5
       });
 
       if (!response.data) {
