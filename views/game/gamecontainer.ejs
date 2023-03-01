@@ -13,6 +13,9 @@
 
     <!-- LOGIN/TIMELINE CSS -->
     <style>
+    :root {
+    --card-width:calc(90vw);
+    }
     body {
         background-image: url("splash.jpg");
         background-repeat: no-repeat;
@@ -21,24 +24,24 @@
         justify-content: center;
         align-items: center;
         height: 100vh !important;
+        width: 100vw !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow-y: hidden !important;
+        overflow: hidden !important;
+    }
+    .container {
+        height: 100vh !important;
+        min-width: 100vw !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden !important;
+        overflow-y: scroll !important;
     }
     .login-container {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
-    }
-    .cardClass {
-        background-color: rgba(255, 255, 255, .7);
-    }
-    .textColor {
-        color: black !important;
-    }
-    .textSize {
-        
     }
     .shake {
     animation-name: shake;
@@ -58,15 +61,6 @@
         90% { transform: translateX(-10px); }
         100% { transform: translateX(0); }
     }
-    .gameCardClass {
-        background-color: rgba(116, 148, 177, 0.7) !important;
-        color: white !important;
-        cursor: pointer;
-    }
-    .gameCardImgClass {
-        padding: 10%;
-        
-    }
     .rowContainer {
         padding:20px;
         height: 100vh;
@@ -74,29 +68,127 @@
         width: 100%;
     }
 	</style>
+    <!-- TIMELINE CSS -->
+    <style>
+    .card-timeline {
+        position: relative;
+        width: var(--card-width);
+        height: calc(var(--card-width) * 500 / 370);
+        background-image: url("cardbg.png");
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        margin: 5vw !important;
+        border-radius: 5vw !important;
+    }
+
+    .card-img {
+        position: absolute;
+        top: calc(var(--card-width) * 65 / 370);
+        left: calc(var(--card-width) * 71 / 370);
+        width: calc(var(--card-width) * 230 / 370);
+        height: calc(var(--card-width) * 230 / 370);
+        border-radius: 50%;
+        overflow: hidden;
+
+        
+    }
+    .card-img::after {
+        content: "";
+        background-image: radial-gradient(ellipse at center, rgba(0,0,0,0) 5%,rgba(0,0,0,1) 90%,rgba(0,0,0,1) 100%);
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    .card-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .card-name {
+        position: absolute;
+        top: calc(var(--card-width) * 325 / 370);
+        left: calc(var(--card-width) * 30 / 370);
+        font-family: 'Arial', sans-serif;
+        font-size: calc(var(--card-width) * 28 / 370);
+        text-align: center;
+        width: calc(var(--card-width) * 300 / 370);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: rgb(54, 54, 54);
+    }
+
+    .card-years {
+        position: absolute;
+        top: calc(var(--card-width) * 390 / 370);
+        left: calc(var(--card-width) * 30 / 370);
+        font-family: 'Arial', sans-serif;
+        font-size: calc(var(--card-width) * 24 / 370);
+        color: rgb(85, 85, 85);
+        text-align: center;
+        width: calc(var(--card-width) * 300 / 370);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .card-literature {
+        position: absolute;
+        top: calc(var(--card-width) * 470 / 370);
+        left: calc(var(--card-width) * 100 / 370);
+        font-family: 'Arial', sans-serif;
+        font-size: calc(var(--card-width) * 15 / 370);
+        text-align: center;
+        width: calc(var(--card-width) * 155 / 370);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-style: oblique;
+        color: rgb(185, 185, 185);
+    }
+    </style>
     <!-- DIALOG CSS -->
     <style>
-    .chat-window {
+    .chat-container {
         position: absolute;
         z-index: 999;
         top: 0;
         left: 0;
-        height: 100vh !important;
         width: 100vw !important;
+        height: 100vh !important;
         display: flex;
         flex-direction: column;
         margin: 0;
-        background-color: #202c33;
-        overflow-y: hidden;
-        overflow-x: hidden;
+        background-color: rgba(54, 54, 54,0.8);
+        overflow: hidden !important;
         visibility: hidden;
+    }
+    .chat-window {
+        position: absolute;
+        top: 5vh;
+        left: 0;
+        width: 100vw !important;
+        height: 70vh !important;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        background-color: rgba(54, 54, 54,0.8);
+        overflow: hidden !important;
+        border-radius: 5vw;
     }
   
     .chat-header {
         display: flex;
         align-items: center;
         padding: 10px;
-        padding-top:30px;
         border-bottom: 1px solid #2f3b43;
         background-color: #202c33;
         color: #e9edef;
@@ -111,14 +203,14 @@
   
     .profile-pic {
         position: relative;
-        top:-8px;
-        left: -6px;
-        width: 60px;/* 284 */
-        height: auto;/* 392 */
+        top:0;
+        left: 0;
+        width: 50px;
+        height: auto;
     }
   
     .chat-body {
-        height: 70%;
+        height: 100% !important;
         overflow-y: scroll;
         display: flex;
         flex-direction: column;
@@ -152,7 +244,6 @@
         padding: 10px;
         border-top: 1px solid #2f3b43;
         background-color: #202c33;
-        margin-left: 10px !important;
     }
   
     .chat-input input {
@@ -181,7 +272,7 @@
     }
     .closeBTN {
         position: absolute;
-        top: calc(40px);
+        top: 10px;
         right: 10px;
         color: #e9edef;
         cursor: pointer;
@@ -242,19 +333,21 @@
     <div class="loading-spinner"></div>
 </div>
 <!-- DIALOG HTML -->
-<div id="chat-window" class="chat-window">
-    <div class="chat-header">
-        <div class="profile-pic-cropper">
-            <img id="profileImg" class="profile-pic">
+<div id="chat-window" class="chat-container">
+    <div class="chat-window">    
+        <div class="chat-header">
+            <div class="profile-pic-cropper">
+                <img id="profileImg" class="profile-pic">
+            </div>
+            <span class="profileClass" id="profileName"></span>
         </div>
-        <span class="profileClass" id="profileName"></span>
+        <div #chat-body id="chat-body" class="chat-body"></div>
+        <div class="chat-input">
+            <input type="text" id="dialog-input" placeholder="Type a message...">
+            <button id="send-button" onclick="sendDialog()">Send</button>
+        </div>
+        <a class="closeBTN" onclick="closeDialog()"><i class="material-icons" class="closeBTNTXT">clear</i></a>
     </div>
-    <div #chat-body id="chat-body" class="chat-body"></div>
-    <div class="chat-input">
-        <input type="text" id="dialog-input" placeholder="Type a message...">
-        <button id="send-button" onclick="sendDialog()">Send</button>
-    </div>
-    <a class="closeBTN" onclick="closeDialog()"><i class="material-icons" class="closeBTNTXT">clear</i></a>
 </div>
 <!-- LOGIN/TIMELINE HTML -->
 <div id="mainRow" class="container">
@@ -368,34 +461,26 @@
             for (let i = 0; i < timelines.length; i++) {
                 const timeline = timelines[i];
 
-                console.log(timeline.fullName)
-
-                const cardCol = document.createElement("div");
-                cardCol.classList.add("col", "s6", "m4","m3");
-
                 const card = document.createElement("div");
-                card.classList.add("card","gameCardClass");
-
-                const cardImg = document.createElement("div");
-                cardImg.classList.add("card-image");
+                card.classList.add("card","card-timeline", "col");
+                const imgDiv = document.createElement("div");
+                imgDiv.classList.add("card-img");
                 const img = document.createElement("img");
-                img.classList.add("gameCardImgClass")
-                img.src = timeline.lastName + ".png";
-                
-                cardImg.appendChild(img);
-
-                const cardContent = document.createElement("div");
-                cardContent.classList.add("card-content");
-                const cardTitle = document.createElement("span");
-                cardTitle.classList.add("card-title");
-                cardTitle.innerText = timeline.fullName;
-                const cardLitType = document.createElement("p");
-                cardLitType.innerText = timeline.literatureType;
-                cardContent.appendChild(cardTitle);
-                cardContent.appendChild(cardLitType);
-                closeDialog
-                card.appendChild(cardImg);
-                card.appendChild(cardContent);
+                img.src = timeline.lastName + ".jpg";
+                imgDiv.appendChild(img);
+                const name = document.createElement("div");
+                name.classList.add("card-name");
+                name.innerText = timeline.fullName;
+                const years = document.createElement("div");
+                years.classList.add("card-years");
+                years.innerText = timeline.birthYear + " | " + timeline.deathYear;
+                const literature = document.createElement("div");
+                literature.classList.add("card-literature");
+                literature.innerText = timeline.literatureType;
+                card.appendChild(imgDiv);
+                card.appendChild(name);
+                card.appendChild(years);
+                card.appendChild(literature);
 
                 // Apply fade-in and left-to-right transition
                 card.style.transition = 'transform 1s ease, opacity 1s ease';
@@ -412,8 +497,7 @@
                     setupChat();
                 });
 
-                cardCol.appendChild(card);
-                mainRow.appendChild(cardCol);
+                mainRow.appendChild(card);
             }
         } catch (error) {
             alert(error);
@@ -427,7 +511,7 @@
         var profileImg = document.getElementById('profileImg');
 
         profileName.innerText = actualTimeline.fullName;
-        profileImg.src = actualTimeline.lastName + ".png";
+        profileImg.src = actualTimeline.lastName + ".jpg";
 
         let chatWindow = document.getElementById("chat-window");
         chatWindow.style.visibility = "visible";
@@ -505,10 +589,6 @@
         let chatBody = document.getElementById('chat-body');
         chatBody.innerHTML = "";
     }
-    var availableHeight = window.innerHeight;
-    document.querySelector('body').style.height = availableHeight + 'px !important;';
-    document.querySelector('rowContainer').style.height = availableHeight + 'px !important;';
-    document.querySelector('chat-window').style.height = availableHeight + 'px !important;';
     </script>
 </body>
 </html>
