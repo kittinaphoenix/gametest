@@ -10,8 +10,7 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 async function getDialog(user, dialogInput, dialogTo) {
-  const prompt = "Comienza una conversación con " + dialogTo + " basada en su literatura y datos que tengas. Respóndele en primera persona como si fueses " + dialogTo + ", puedes citar una obra asociada al tema si aplica. Por favor, asegúrate de que tus respuestas sean coherentes y contextualizadas. Aquí está el mensaje de inicio del chat: " + dialogInput;
-    try {
+  const prompt = "Comienza una conversación con " + dialogTo + " basada en su literatura y datos que tengas. Respóndele en primera persona como si fueses " + dialogTo + ", puedes citar una obra asociada al tema si aplica. Por favor, asegúrate de que tus respuestas sean coherentes y contextualizadas. Tambien verifica si mi ultima interaccion incluye el nombre del autor ya nombrado, y en caso que sea asi, intenta que esta interaccion sea continuacion de la anterior. Aquí está el mensaje de inicio o continuacion del chat: " + dialogInput;    try {
       const response = await openai.createCompletion({
         model: "text-davinci-003",
         prompt: prompt,
