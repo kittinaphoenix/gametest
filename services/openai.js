@@ -3,7 +3,6 @@ const { Configuration, OpenAIApi } = require("openai");
 const openaikey = process.env.openaikey || "";
 
 const configuration = new Configuration({
-    //organization: "Kittina",
     apiKey: openaikey,
 });
 
